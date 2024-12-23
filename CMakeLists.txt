@@ -56,6 +56,8 @@ option(USE_HOST_SIDE_HDP_FLUSH "Use a polling thread to flush the HDP cache on t
 option(BUILD_FUNCTIONAL_TESTS "Build the functional tests" ON)
 option(BUILD_SOS_TESTS "Build the host-facing tests" OFF)
 option(BUILD_UNIT_TESTS "Build the unit tests" ON)
+option(BUILD_BENCHMARKS "Build the rocSHMEM benchmarks" ON)
+
 option(BUILD_LOCAL_GPU_TARGET_ONLY "Build only for GPUs detected on this machine" OFF)
 
 configure_file(cmake/rocshmem_config.h.in rocshmem_config.h)

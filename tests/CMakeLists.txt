@@ -1,3 +1,7 @@
+IF (BUILD_BENCHMARKS)
+  add_subdirectory(benchmarks)
+ENDIF()
+
 IF (BUILD_FUNCTIONAL_TESTS)
     add_subdirectory(functional_tests)
 ENDIF()
