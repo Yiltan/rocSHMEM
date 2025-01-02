@@ -22,6 +22,7 @@
 
 #include "backend_ipc.hpp"
 #include "ipc_team.hpp"
+#include "../mpi_init_singleton.hpp"
 
 namespace rocshmem {
 
@@ -188,16 +189,8 @@ void IPCBackend::setup_team_world() {
 }
 
 void IPCBackend::init_mpi_once(MPI_Comm comm) {
-  int init_done{};
-  NET_CHECK(MPI_Initialized(&init_done));
+  MPIInitSingleton::init();
 
-  int provided{};
-  if (!init_done) {
-    NET_CHECK(MPI_Init_thread(0, 0, MPI_THREAD_MULTIPLE, &provided));
-    if (provided != MPI_THREAD_MULTIPLE) {
-      std::cerr << "MPI_THREAD_MULTIPLE support disabled.\n";
-    }
-  }
   if (comm == MPI_COMM_NULL) comm = MPI_COMM_WORLD;
 
   NET_CHECK(MPI_Comm_dup(comm, &thread_comm));

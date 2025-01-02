@@ -32,6 +32,8 @@
 #include "hip_allocator.hpp"
 #include "window_info.hpp"
 
+#include "../mpi_init_singleton.hpp"
+
 /**
  * @file remote_heap_info.hpp
  *
@@ -51,12 +53,8 @@ class CommunicatorMPI {
    * @brief Primary constructor
    */
   CommunicatorMPI(char* heap_base, size_t heap_size) {
-    int initialized;
-    MPI_Initialized(&initialized);
-    if (!initialized) {
-      int provided;
-      MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
-    }
+    MPIInitSingleton::init();
+
     MPI_Comm_rank(comm_, &my_pe_);
     MPI_Comm_size(comm_, &num_pes_);
 
