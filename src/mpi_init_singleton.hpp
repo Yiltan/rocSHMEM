@@ -69,6 +69,8 @@ class MPIInitSingleton {
    */
   int get_nprocs();
 
+  static void init();
+
  private:
   /**
    * @brief My MPI rank identifier
