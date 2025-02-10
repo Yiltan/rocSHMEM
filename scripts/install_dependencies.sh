@@ -9,7 +9,7 @@ fi
 
 # Location to install dependencies
 if [[ -z "${_PREFIX}" ]]; then
-  export _PREFIX=$HOME/installDIR
+  export _PREFIX=$BUILD_DIR/install
 fi
 
 # Location of dependencies source code
