@@ -99,8 +99,10 @@ project(rocshmem VERSION 2.0.0 LANGUAGES CXX)
 include(cmake/rocm_local_targets.cmake)
 
 set(DEFAULT_GPUS
-      gfx90a
-      gfx942)
+      gfx90a:xnack+
+      gfx90a:xnack-
+      gfx942:xnack+
+      gfx942:xnack-)
 
 if (BUILD_LOCAL_GPU_TARGET_ONLY)
   message(STATUS "Building only for local GPU target")
