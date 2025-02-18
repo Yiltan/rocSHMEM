@@ -29,6 +29,7 @@
 #include "rocshmem_config.h"  // NOLINT(build/include_subdir)
 #include "memory/hip_allocator.hpp"
 #include "util.hpp"
+#include "device_properties.hpp"
 
 namespace rocshmem {
 
@@ -119,11 +120,9 @@ class HdpHostSideFlushRocmPolicy {
 
  private:
   void set_hdp_flush_ptr() {
-    int hip_dev_id{};
-    CHECK_HIP(hipGetDevice(&hip_dev_id));
     CHECK_HIP(hipDeviceGetAttribute(reinterpret_cast<int*>(&hdp_flush_ptr_),
                                     hipDeviceAttributeHdpMemFlushCntl,
-                                    hip_dev_id));
+                                    hip_device_id));
   }
 
   unsigned int* hdp_flush_ptr_{nullptr};
@@ -154,11 +153,9 @@ class HdpDeviceSideFlushRocmPolicy {
 
  private:
   void set_hdp_flush_ptr() {
-    int hip_dev_id{};
-    CHECK_HIP(hipGetDevice(&hip_dev_id));
     CHECK_HIP(hipDeviceGetAttribute(reinterpret_cast<int*>(&hdp_flush_ptr_),
                                     hipDeviceAttributeHdpMemFlushCntl,
-                                    hip_dev_id));
+                                    hip_device_id));
   }
 
   unsigned int* hdp_flush_ptr_{nullptr};

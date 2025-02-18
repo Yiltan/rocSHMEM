@@ -30,6 +30,7 @@
 #include "backend_ib.hpp"
 #include "queue_pair.hpp"
 #include "../util.hpp"
+#include "../device_properties.hpp"
 
 namespace rocshmem {
 
@@ -100,9 +101,6 @@ void Connection::initialize(int num_block) {
 
   uint8_t port = 1;
   ib_init(ib_dev, port);
-
-  int hip_dev_id = 0;
-  CHECK_HIP(hipGetDevice(&hip_dev_id));
 
   int ib_fork_err = ibv_fork_init();
   if (ib_fork_err != 0) printf("error: ibv_fork_init failed \n");
@@ -327,8 +325,6 @@ ibv_cq* Connection::create_cq(ibv_context* context, ibv_pd* pd, int cqe) {
 
 void Connection::init_gpu_qp_from_connection(QueuePair* gpu_qp,
                                                int conn_num) {
-  int hip_dev_id = 0;
-  CHECK_HIP(hipGetDevice(&hip_dev_id));
   use_gpu_mem = cq_use_gpu_mem;
 
   mlx5dv_cq cq_out;
@@ -345,13 +341,13 @@ void Connection::init_gpu_qp_from_connection(QueuePair* gpu_qp,
     gpu_qp->current_cq_q = reinterpret_cast<mlx5_cqe64*>(cq_out.buf);
   } else {
     rocm_memory_lock_to_fine_grain(reinterpret_cast<void*>(cq_out.buf),
-                                   cq_out.cqe_cnt * 64, &gpu_ptr, hip_dev_id);
+                                   cq_out.cqe_cnt * 64, &gpu_ptr, hip_device_id);
     gpu_qp->current_cq_q = reinterpret_cast<mlx5_cqe64*>(gpu_ptr);
   }
   gpu_qp->current_cq_q_H = reinterpret_cast<mlx5_cqe64*>(cq_out.buf);
 
   rocm_memory_lock_to_fine_grain(reinterpret_cast<void*>(cq_out.dbrec), 64,
-                                 &gpu_ptr, hip_dev_id);
+                                 &gpu_ptr, hip_device_id);
 
   gpu_qp->dbrec_cq = reinterpret_cast<volatile uint32_t*>(gpu_ptr);
 
@@ -374,13 +370,13 @@ void Connection::init_gpu_qp_from_connection(QueuePair* gpu_qp,
     gpu_ptr = nullptr;
     rocm_memory_lock_to_fine_grain(reinterpret_cast<void*>(qp_out.sq.buf),
                                    qp_out.sq.wqe_cnt * 64, &gpu_ptr,
-                                   hip_dev_id);
+                                   hip_device_id);
 
     gpu_qp->current_sq = reinterpret_cast<uint64_t*>(gpu_ptr);
 
     rocm_memory_lock_to_fine_grain(
         reinterpret_cast<void*>(const_cast<uint32_t*>(dbrec_send)), 32,
-        &gpu_ptr, hip_dev_id);
+        &gpu_ptr, hip_device_id);
 
     gpu_qp->dbrec_send = reinterpret_cast<volatile uint32_t*>(gpu_ptr);
   }
@@ -390,7 +386,7 @@ void Connection::init_gpu_qp_from_connection(QueuePair* gpu_qp,
   gpu_qp->setDBval(*(reinterpret_cast<uint64_t*>(qp_out.sq.buf)));
 
   rocm_memory_lock_to_fine_grain(qp_out.bf.reg, qp_out.bf.size * 2, &gpu_ptr,
-                                 hip_dev_id);
+                                 hip_device_id);
 
   gpu_qp->db.ptr = reinterpret_cast<uint64_t*>(gpu_ptr);
 

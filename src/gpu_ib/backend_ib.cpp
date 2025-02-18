@@ -36,6 +36,7 @@
 #include "gpu_ib_team.hpp"
 #include "queue_pair.hpp"
 #include "../host/host.hpp"
+#include "../device_properties.hpp"
 
 namespace rocshmem {
 
@@ -356,7 +357,7 @@ std::thread GPUIBBackend::thread_spawn(GPUIBBackend *b) {
 }
 
 void GPUIBBackend::thread_func_internal(GPUIBBackend *b) {
-  CHECK_HIP(hipSetDevice(hip_dev_id));
+  CHECK_HIP(hipSetDevice(hip_device_id));
 
   b->initialize_ipc();
   b->initialize_network();

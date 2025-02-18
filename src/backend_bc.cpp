@@ -25,6 +25,8 @@
 #include "backend_type.hpp"
 #include "context_incl.hpp"
 
+#include "device_properties.hpp"
+
 #ifdef USE_GPU_IB
 #include "gpu_ib/backend_ib.hpp"
 #elif defined(USE_RO)
@@ -41,8 +43,6 @@ Backend::Backend() {
                             0)) {
     abort();
   }
-
-  CHECK_HIP(hipGetDevice(&hip_dev_id));
 
   /*
    * Initialize 'print_lock' global and copy to the device memory space.

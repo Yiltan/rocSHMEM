@@ -230,13 +230,6 @@ class Backend {
   SymmetricHeap heap{};
 
   /**
-   * @brief Determines which device to launch device kernels onto.
-   *
-   * Multi-device nodes can specify which one they would like to use.
-   */
-  int hip_dev_id{0};
-
-  /**
    * @brief Add ctx from the list of user-created ctxs
    */
   void track_ctx(Context* ctx);
