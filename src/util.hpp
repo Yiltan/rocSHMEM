@@ -32,21 +32,12 @@
 #include "assembly.hpp"
 #include "rocshmem_config.h"  // NOLINT(build/include_subdir)
 #include "constants.hpp"
+#include "macros.hpp"
 
 namespace rocshmem {
 
 #define LOAD(VAR) __atomic_load_n((VAR), __ATOMIC_SEQ_CST)
 #define STORE(DST, SRC) __atomic_store_n((DST), (SRC), __ATOMIC_SEQ_CST)
-
-#define CHECK_HIP(cmd)                                                        \
-  {                                                                           \
-    hipError_t error = cmd;                                                   \
-    if (error != hipSuccess) {                                                \
-      fprintf(stderr, "error: '%s'(%d) at %s:%d\n", hipGetErrorString(error), \
-              error, __FILE__, __LINE__);                                     \
-      exit(EXIT_FAILURE);                                                     \
-    }                                                                         \
-  }
 
 #ifdef DEBUG
 #define DPRINTF(...)     \
