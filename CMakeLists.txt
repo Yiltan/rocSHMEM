@@ -78,9 +78,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
 
-find_package(ROCM 0.8 REQUIRED PATHS ${ROCM_PATH})
-set(ROCMCHECKS_WARN_TOOLCHAIN_VAR OFF)
-
 find_package(ROCmCMakeBuildTools)
 include(ROCMCreatePackage)
 include(ROCMInstallTargets)
