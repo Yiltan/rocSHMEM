@@ -23,12 +23,24 @@
 #ifndef LIBRARY_SRC_DEVICE_PROPERTIES_HPP_
 #define LIBRARY_SRC_DEVICE_PROPERTIES_HPP_
 
+#include "util.hpp"
+
 namespace rocshmem {
 
 static int hip_device_id;
+static int wavefront_size;
+
+__device__ static int wavefront_size_d;
 
 static inline void init_device_properties() {
+  hipDeviceProp_t deviceProp{};
+
   CHECK_HIP(hipGetDevice(&hip_device_id));
+  CHECK_HIP(hipGetDeviceProperties(&deviceProp, hip_device_id));
+
+  wavefront_size = deviceProp.warpSize;
+
+  CHECK_HIP(hipMemcpy(&wavefront_size_d, &wavefront_size, sizeof(int), hipMemcpyHostToDevice));
 }
 
 }  // namespace rocshmem

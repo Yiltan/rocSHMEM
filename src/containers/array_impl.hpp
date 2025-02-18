@@ -26,6 +26,7 @@
 #include <cassert>
 
 #include "array.hpp"
+#include "../device_properties.hpp"
 
 namespace rocshmem {
 
@@ -148,8 +149,8 @@ __device__ void Array<TYPE>::zero_thread_dump() {
 template <typename TYPE>
 __device__ void Array<TYPE>::any_thread_dump() {
   Identity id{};
-  for (int i = 0; i < __AMDGCN_WAVEFRONT_SIZE; i++) {
-    if ((id.local_thread_id() % __AMDGCN_WAVEFRONT_SIZE) == i) {
+  for (int i = 0; i < wavefront_size_d; i++) {
+    if ((id.local_thread_id() % wavefront_size_d) == i) {
       while (atomicCAS(GLOBAL_DEVICE_PRINT_LOCK, 0, 1) == 1) {
       }
 
