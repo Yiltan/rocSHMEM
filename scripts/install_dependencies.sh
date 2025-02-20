@@ -8,7 +8,7 @@ if [[ -z "${_ROCM_DIR}" ]]; then
 fi
 
 # Location of dependencies source code
-export _INSTALL_DIR=$BUILD_DIR/install
+export _INSTALL_DIR=$HOME/.build
 export _DEPS_SRC_DIR=$_INSTALL_DIR/src
 
 mkdir -p $_DEPS_SRC_DIR
@@ -58,7 +58,8 @@ git submodule update --init --recursive
             --without-cuda               \
             --disable-sphinx             \
             --disable-mpi-fortran        \
-            --without-ofi
+            --without-ofi                \
+            --without-hcoll
 make -j
 make install
 

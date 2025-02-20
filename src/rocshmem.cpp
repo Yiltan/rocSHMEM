@@ -83,6 +83,7 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
   }
 
   rocm_init();
+  device_properties_init();
 
 #ifdef USE_GPU_IB
   CHECK_HIP(hipHostMalloc(&backend, sizeof(GPUIBBackend)));

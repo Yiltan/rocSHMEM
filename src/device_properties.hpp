@@ -32,7 +32,7 @@ static int wavefront_size;
 
 __device__ static int wavefront_size_d;
 
-static inline void init_device_properties() {
+static inline void device_properties_init() {
   hipDeviceProp_t deviceProp{};
 
   CHECK_HIP(hipGetDevice(&hip_device_id));
@@ -40,7 +40,7 @@ static inline void init_device_properties() {
 
   wavefront_size = deviceProp.warpSize;
 
-  CHECK_HIP(hipMemcpy(&wavefront_size_d, &wavefront_size, sizeof(int), hipMemcpyHostToDevice));
+  CHECK_HIP(hipMemcpyToSymbol(HIP_SYMBOL(wavefront_size_d), &wavefront_size, sizeof(int), 0, hipMemcpyHostToDevice));
 }
 
 }  // namespace rocshmem

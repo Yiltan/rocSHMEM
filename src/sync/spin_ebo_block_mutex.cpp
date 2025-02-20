@@ -44,7 +44,7 @@ __device__ void SpinEBOBlockMutex::lock() {
    */
   int num_threads_in_wv = wave_SZ();
 
-  if (get_flat_block_id() % WF_SIZE == lowerID()) {
+  if (get_flat_block_id() % wavefront_size_d == lowerID()) {
     /*
      * All the metadata associated with this lock needs to be accessed
      * atomically or it will race.
@@ -107,7 +107,7 @@ __device__ void SpinEBOBlockMutex::unlock() {
   }
   int num_threads_in_wv{wave_SZ()};
 
-  if (get_flat_block_id() % WF_SIZE == lowerID()) {
+  if (get_flat_block_id() % wavefront_size_d == lowerID()) {
     while (atomicCAS(reinterpret_cast<int *>(&ctx_lock_), 0, 1) == 1) {
     }
 

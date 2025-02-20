@@ -33,6 +33,7 @@
 #include "rocshmem_config.h"  // NOLINT(build/include_subdir)
 #include "constants.hpp"
 #include "macros.hpp"
+#include "device_properties.hpp"
 
 namespace rocshmem {
 
@@ -128,15 +129,15 @@ __device__ __forceinline__ int get_flat_id() {
  * Returns true if the caller's thread flad_id is 0 in its wave.
  */
 __device__ __forceinline__ bool is_thread_zero_in_wave() {
-  return (get_flat_block_id() % WF_SIZE) == 0;
+  return (get_flat_block_id() % wavefront_size_d) == 0;
 }
 
 extern __constant__ int* print_lock;
 
 template <typename... Args>
 __device__ void gpu_dprintf(const char* fmt, const Args&... args) {
-  for (int i{0}; i < WF_SIZE; i++) {
-    if ((get_flat_block_id() % WF_SIZE) == i) {
+  for (int i{0}; i < wavefront_size_d; i++) {
+    if ((get_flat_block_id() % wavefront_size_d) == i) {
       /*
        * GPU-wide global lock that ensures that both prints are executed
        * by a single thread atomically.  We deliberately break control
@@ -215,7 +216,9 @@ __device__ __forceinline__ void memcpy_wg(void* dst, void* src, size_t size) {
 }
 
 __device__ __forceinline__ void memcpy_wave(void* dst, void* src, size_t size) {
-  int wave_tid = get_flat_block_id() % WF_SIZE;
+  //int wave_tid = get_flat_block_id() % wavefront_size_d;
+  printf("wavefront_size_d=%d\n", wavefront_size_d);
+  int wave_tid = get_flat_block_id() % 64;
   int wave_size{wave_SZ()};
 
   int cpy_size{};

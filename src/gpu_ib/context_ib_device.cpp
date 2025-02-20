@@ -159,7 +159,7 @@ __device__ void *GPUIBContext::shmem_ptr(const void *dest, int pe) {
 __device__ void GPUIBContext::threadfence_system() {
   int thread_id = get_flat_block_id();
 
-  if (thread_id % WF_SIZE == lowerID()) {
+  if (thread_id % wavefront_size_d == lowerID()) {
 #ifdef USE_SINGLE_NODE
     // Flush current PE HDP
     HdpPolicy::hdp_flush(

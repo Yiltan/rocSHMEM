@@ -1,0 +1,94 @@
+waveput_n2_w2_z128_1048576B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13157@1,1]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+
+
+waveput_n2_w16_z128_8B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13174@1,1]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+
+waveget_n2_w2_z128_1048576B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13395@1,0]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+
+waveget_n2_w16_z128_8B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13412@1,0]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+
+waveputnbi_n2_w2_z128_1048576B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13633@1,1]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+waveputnbi_n2_w16_z128_8B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13650@1,1]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+
+wavegetnbi_n2_w2_z128_1048576B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13871@1,0]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed
+wavegetnbi_n2_w16_z128_8B
+Data validation error at idx 1
+Got 0, Expected 1
+--------------------------------------------------------------------------
+prterun detected that one or more processes exited with non-zero status,
+thus causing the job to be terminated. The first process to do so was:
+
+   Process name: [prterun-banff-pla-r27-14-13888@1,0]
+   Exit code:    255
+--------------------------------------------------------------------------
+Failed

@@ -31,6 +31,7 @@
 #include "../src/containers/free_list_impl.hpp"
 #include "gtest/gtest.h"
 #include "../src/memory/hip_allocator.hpp"
+#include "../src/util.hpp"
 
 namespace rocshmem {
 
@@ -41,6 +42,7 @@ class FreeListTestFixture : public ::testing::Test {
     std::iota(h_input.begin(), h_input.end(), T{1});
     d_input = h_input;
     free_list = list_proxy.get();
+    device_properties_init();
   }
 
  protected:

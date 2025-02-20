@@ -42,7 +42,7 @@ __device__ void MultiThreadImpl::quiet(QueuePair *handle) {
    * Each WF selects one thread to perform the quiet.  Only one thread
    * per WG is allowed to do a quiet at once to avoid races with the CQ.
    */
-  if (thread_id % WF_SIZE == lowerID()) {
+  if (thread_id % wavefront_size_d == lowerID()) {
     while (atomicCAS(&(handle->threadImpl.cq_lock), 0, 1) == 1) {
     }
     handle->quiet_internal<THREAD>();
@@ -57,7 +57,7 @@ __device__ void MultiThreadImpl::quiet_heavy(QueuePair *handle, int pe) {
    * Each WF selects one thread to perform the quiet.  Only one thread
    * per WG is allowed to do a quiet at once to avoid races with the CQ.
    */
-  if (thread_id % WF_SIZE == lowerID()) {
+  if (thread_id % wavefront_size_d == lowerID()) {
     // zero_byte read
     handle->zero_b_rd<THREAD>(pe);
 
@@ -83,7 +83,7 @@ __device__ void WAVE::quiet(QueuePair *handle) {
    * per WG is allowed to do a quiet at once to avoid races with the CQ.
    */
 
-  if (thread_id % WF_SIZE == 0) {
+  if (thread_id % wavefront_size_d == 0) {
     while (atomicCAS(&(handle->threadImpl.cq_lock), 0, 1) == 1) {
     }
     handle->quiet_internal<WAVE>();
@@ -98,7 +98,7 @@ __device__ void WAVE::quiet_heavy(QueuePair *handle, int pe) {
    * Each WF selects one thread to perform the quiet.  Only one thread
    * per WG is allowed to do a quiet at once to avoid races with the CQ.
    */
-  if (thread_id % WF_SIZE == 0) {
+  if (thread_id % wavefront_size_d == 0) {
     // post a zero-byte read
     handle->zero_b_rd<THREAD>(pe);
     while (atomicCAS(&(handle->threadImpl.cq_lock), 0, 1) == 1) {
@@ -178,7 +178,7 @@ __device__ void MultiThreadImpl::finishPost_internal(QueuePair *handle,
    * one, and that this will select a single thread in the wavefront.
    */
   __threadfence();
-  if (get_flat_block_id() % WF_SIZE == lowerID()) {
+  if (get_flat_block_id() % wavefront_size_d == lowerID()) {
     if (ring_db) {
       uint64_t db_val =
           handle->current_sq[8 * ((handle->sq_counter - num_wqes) %
@@ -225,7 +225,7 @@ __device__ void MultiThreadImpl::postLock_internal(QueuePair *handle) {
   int thread_id = get_flat_block_id();
   int active_threads = wave_SZ();
 
-  if (thread_id % WF_SIZE == lowerID()) {
+  if (thread_id % wavefront_size_d == lowerID()) {
     handle->hdp_policy->hdp_flush();
     /*
      * Don't let more than one wave in this WG go any further or a

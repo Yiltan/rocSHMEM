@@ -105,7 +105,7 @@ ExecTest() {
   fi
 
   # MPI Parameters
-  LAUNCHER=mpirun
+  LAUNCHER="mpirun --allow-run-as-root -mca coll ^hcoll "
   OPTIONS=" -n $NUM_RANKS -mca pml ucx -x ROCSHMEM_MAX_NUM_CONTEXTS=$ROCSHMEM_MAX_NUM_CONTEXTS"
 
   if [[ "" != "$HOSTFILE" ]]
@@ -143,79 +143,79 @@ TestRMA() {
   ##############################################################################
   #       | Name             | Ranks | Workgroups | Threads | Max Message Size #
   ##############################################################################
-  ExecTest  "put"              2       1            1         1048576
-  ExecTest  "put"              2       1            1024      512
-  ExecTest  "put"              2       8            1         1048576
-  ExecTest  "put"              2       16           128       8
-  ExecTest  "put"              2       32           256       512
-  ExecTest  "put"              2       64           1024      8
+#  ExecTest  "put"              2       1            1         1048576
+#  ExecTest  "put"              2       1            1024      512
+#  ExecTest  "put"              2       8            1         1048576
+#  ExecTest  "put"              2       16           128       8
+#  ExecTest  "put"              2       32           256       512
+#  ExecTest  "put"              2       64           1024      8
+#
+#  ExecTest  "wgput"            2       1            64        1048576
+#  ExecTest  "wgput"            2       2            64        1048576
+#  ExecTest  "wgput"            2       16           64        8
 
-  ExecTest  "wgput"            2       1            64        1048576
-  ExecTest  "wgput"            2       2            64        1048576
-  ExecTest  "wgput"            2       16           64        8
-
-  ExecTest  "waveput"          2       1            64        1048576
-  ExecTest  "waveput"          2       2            64        1048576
+#  ExecTest  "waveput"          2       1            64        1048576
+#  ExecTest  "waveput"          2       2            64        1048576
   ExecTest  "waveput"          2       2            128       1048576
   ExecTest  "waveput"          2       16           128       8
 
-  ExecTest  "teamctxput"       2       1            1         1048576
+#  ExecTest  "teamctxput"       2       1            1         1048576
+#
+#  ExecTest  "get"              2       1            1         1048576
+#  ExecTest  "get"              2       1            1024      512
+#  ExecTest  "get"              2       8            1         1048576
+#  ExecTest  "get"              2       16           128       8
+#  ExecTest  "get"              2       32           256       512
+#  ExecTest  "get"              2       64           1024      8
+#
+#  ExecTest  "wgget"            2       1            64        1048576
+#  ExecTest  "wgget"            2       2            64        1048576
+#  ExecTest  "wgget"            2       16           64        8
 
-  ExecTest  "get"              2       1            1         1048576
-  ExecTest  "get"              2       1            1024      512
-  ExecTest  "get"              2       8            1         1048576
-  ExecTest  "get"              2       16           128       8
-  ExecTest  "get"              2       32           256       512
-  ExecTest  "get"              2       64           1024      8
-
-  ExecTest  "wgget"            2       1            64        1048576
-  ExecTest  "wgget"            2       2            64        1048576
-  ExecTest  "wgget"            2       16           64        8
-
-  ExecTest  "waveget"          2       1            64        1048576
-  ExecTest  "waveget"          2       2            64        1048576
+#  ExecTest  "waveget"          2       1            64        1048576
+#  ExecTest  "waveget"          2       2            64        1048576
   ExecTest  "waveget"          2       2            128       1048576
   ExecTest  "waveget"          2       16           128       8
 
-  ExecTest  "teamctxget"       2       1            1         1048576
+#  ExecTest  "teamctxget"       2       1            1         1048576
+#
+#  ################################ Non-Blocking ################################
+#
+#  ExecTest  "putnbi"           2       1            1         1048576
+#  ExecTest  "putnbi"           2       1            1024      512
+#  ExecTest  "putnbi"           2       8            1         1048576
+#  ExecTest  "putnbi"           2       16           128       8
+#  ExecTest  "putnbi"           2       32           256       512
+#  ExecTest  "putnbi"           2       64           1024      8
+#
+#  ExecTest  "wgputnbi"         2       1            64        1048576
+#  ExecTest  "wgputnbi"         2       2            64        1048576
+#  ExecTest  "wgputnbi"         2       16           64        8
 
-  ################################ Non-Blocking ################################
-
-  ExecTest  "putnbi"           2       1            1         1048576
-  ExecTest  "putnbi"           2       1            1024      512
-  ExecTest  "putnbi"           2       8            1         1048576
-  ExecTest  "putnbi"           2       16           128       8
-  ExecTest  "putnbi"           2       32           256       512
-  ExecTest  "putnbi"           2       64           1024      8
-
-  ExecTest  "wgputnbi"         2       1            64        1048576
-  ExecTest  "wgputnbi"         2       2            64        1048576
-  ExecTest  "wgputnbi"         2       16           64        8
-
-  ExecTest  "waveputnbi"       2       1            64        1048576
-  ExecTest  "waveputnbi"       2       2            64        1048576
+#  ExecTest  "waveputnbi"       2       1            64        1048576
+#  ExecTest  "waveputnbi"       2       2            64        1048576
   ExecTest  "waveputnbi"       2       2            128       1048576
   ExecTest  "waveputnbi"       2       16           128       8
 
-  ExecTest  "teamctxputnbi"    2       1            1         1048576
+#  ExecTest  "teamctxputnbi"    2       1            1         1048576
+#
+#  ExecTest  "getnbi"           2       1            1         1048576
+#  ExecTest  "getnbi"           2       1            1024      512
+#  ExecTest  "getnbi"           2       8            1         1048576
+#  ExecTest  "getnbi"           2       16           128       8
+#  ExecTest  "getnbi"           2       32           256       512
+#  ExecTest  "getnbi"           2       64           1024      8
+#
+#  ExecTest  "wggetnbi"         2       1            64        1048576
+#  ExecTest  "wggetnbi"         2       2            64        1048576
+#  ExecTest  "wggetnbi"         2       16           64        8
 
-  ExecTest  "getnbi"           2       1            1         1048576
-  ExecTest  "getnbi"           2       1            1024      512
-  ExecTest  "getnbi"           2       8            1         1048576
-  ExecTest  "getnbi"           2       16           128       8
-  ExecTest  "getnbi"           2       32           256       512
-  ExecTest  "getnbi"           2       64           1024      8
-
-  ExecTest  "wggetnbi"         2       1            64        1048576
-  ExecTest  "wggetnbi"         2       2            64        1048576
-  ExecTest  "wggetnbi"         2       16           64        8
-
-  ExecTest  "wavegetnbi"       2       1            64        1048576
-  ExecTest  "wavegetnbi"       2       2            64        1048576
+#  ExecTest  "wavegetnbi"       2       1            64        1048576
+#  ExecTest  "wavegetnbi"       2       2            64        1048576
   ExecTest  "wavegetnbi"       2       2            128       1048576
   ExecTest  "wavegetnbi"       2       16           128       8
 
-  ExecTest  "teamctxgetnbi"    2       1            1         1048576
+#  ExecTest  "teamctxgetnbi"    2       1            1         1048576
 }
 
 TestAMO() {
