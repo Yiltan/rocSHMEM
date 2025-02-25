@@ -21,17 +21,31 @@
  *****************************************************************************/
 
 #include "mpi_init_singleton.hpp"
+#include <iostream>
 
 namespace rocshmem {
 
 MPIInitSingleton* MPIInitSingleton::instance{nullptr};
+
+void MPIInitSingleton::init() {
+  if (nullptr == instance) {
+    instance = new MPIInitSingleton();
+  }
+}
 
 MPIInitSingleton::MPIInitSingleton() {
   MPI_Initialized(&initialized);
 
   if (0 == initialized) {
     int provided;
+
     MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
+
+    if (provided != MPI_THREAD_MULTIPLE) {
+      std::cerr
+        << "MPI_THREAD_MULTIPLE support is not available. rocSHMEM may not perform correctly."
+        << std::endl;
+    }
   }
 
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -40,7 +54,6 @@ MPIInitSingleton::MPIInitSingleton() {
 
 MPIInitSingleton::~MPIInitSingleton() {
   int finalized = 0;
-
   MPI_Finalized(&finalized);
   if (!finalized && !initialized) {
     MPI_Finalize();
@@ -48,10 +61,7 @@ MPIInitSingleton::~MPIInitSingleton() {
 }
 
 MPIInitSingleton* MPIInitSingleton::GetInstance() {
-  if (!instance) {
-    instance = new MPIInitSingleton();
-    return instance;
-  }
+  MPIInitSingleton::init();
   return instance;
 }
 

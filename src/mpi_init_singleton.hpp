@@ -44,6 +44,8 @@ class MPIInitSingleton {
 
   static MPIInitSingleton* GetInstance();
 
+  static void init();
+
   int get_world_rank();
   int get_world_size();
 

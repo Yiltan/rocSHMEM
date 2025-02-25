@@ -31,6 +31,7 @@
 
 #include "hip_allocator.hpp"
 #include "window_info.hpp"
+#include "../mpi_init_singleton.hpp"
 
 /**
  * @file remote_heap_info.hpp
@@ -51,16 +52,13 @@ class CommunicatorMPI {
    * @brief Primary constructor
    */
   CommunicatorMPI(char* heap_base, size_t heap_size) {
-    int initialized;
-    MPI_Initialized(&initialized);
-    if (!initialized) {
-      int provided;
-      MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
-    }
-    MPI_Comm_rank(comm_, &my_pe_);
-    MPI_Comm_size(comm_, &num_pes_);
 
-    heap_window_info_ = WindowInfo(comm_, heap_base, heap_size);
+    MPIInitSingleton *mpi_init_singleton = mpi_init_singleton->GetInstance();
+
+    my_pe_ = mpi_init_singleton->get_world_rank();
+    num_pes_ = mpi_init_singleton->get_world_size();
+
+    heap_window_info_ = WindowInfo(MPI_COMM_WORLD, heap_base, heap_size);
   }
 
   /**
@@ -81,14 +79,14 @@ class CommunicatorMPI {
   /**
    * @brief Performs MPI_Barrier
    */
-  void barrier() { MPI_Barrier(comm_); }
+  void barrier() { MPI_Barrier(MPI_COMM_WORLD); }
 
   /**
    * @brief Performs MPI_Allgather on recvbuf
    */
   void allgather(void* recvbuf) {
     MPI_Allgather(MPI_IN_PLACE, sizeof(void*), MPI_CHAR, recvbuf, sizeof(void*),
-                  MPI_CHAR, comm_);
+                  MPI_CHAR, MPI_COMM_WORLD);
   }
 
   /**
@@ -97,10 +95,6 @@ class CommunicatorMPI {
   WindowInfo* get_window_info() { return &heap_window_info_; }
 
  private:
-  /**
-   * @brief Identifier for this processing element
-   */
-  MPI_Comm comm_{MPI_COMM_WORLD};
 
   /**
    * @brief Identifier for this processing element
