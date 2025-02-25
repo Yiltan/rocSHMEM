@@ -248,8 +248,7 @@ void IPCBackend::dump_backend_stats() {
 void IPCBackend::initIPC() {
   const auto &heap_bases{heap.get_heap_bases()};
 
-  ipcImpl.ipcHostInit(my_pe, heap_bases,
-                      thread_comm);
+  ipcImpl.ipcHostInit(my_pe, heap_bases);
 }
 
 void IPCBackend::global_exit(int status) {

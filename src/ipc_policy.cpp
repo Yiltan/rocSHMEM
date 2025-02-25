@@ -31,26 +31,12 @@
 
 namespace rocshmem {
 
-__host__ void IpcOnImpl::ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases,
-                                     MPI_Comm thread_comm) {
-  /*
-   * Create an MPI communicator that deals only with local processes.
-   */
-  MPI_Comm shmcomm;
-  MPI_Comm_split_type(thread_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL,
-                      &shmcomm);
+__host__ void IpcOnImpl::ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases) {
 
-  /*
-   * Figure out how many local process there are.
-   */
-  int Shm_size;
-  MPI_Comm_size(shmcomm, &Shm_size);
-  shm_size = Shm_size;
+  MPIInitSingleton *mpi_init_singleton = mpi_init_singleton->GetInstance();
 
-  /*
-   * Figure out how this process' rank among local processes.
-   */
-  MPI_Comm_rank(shmcomm, &shm_rank);
+  shm_size = mpi_init_singleton->get_local_size();
+  shm_rank = mpi_init_singleton->get_local_rank();
 
   /*
    * Allocate a host-side c-array to hold the IPC handles.
@@ -72,7 +58,8 @@ __host__ void IpcOnImpl::ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases,
    * share the symmetric heap IPC handles.
    */
   MPI_Allgather(MPI_IN_PLACE, sizeof(hipIpcMemHandle_t), MPI_CHAR,
-                vec_ipc_handle, sizeof(hipIpcMemHandle_t), MPI_CHAR, shmcomm);
+                vec_ipc_handle, sizeof(hipIpcMemHandle_t), MPI_CHAR,
+                mpi_init_singleton->get_local_comm());
 
   /*
    * Allocate device-side array to hold the IPC symmetric heap base

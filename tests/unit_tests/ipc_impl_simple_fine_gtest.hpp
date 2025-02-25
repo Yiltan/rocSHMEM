@@ -135,7 +135,7 @@ class IPCImplSimpleFine : public ::testing::TestWithParam<std::tuple<int, int, i
 
   public:
     IPCImplSimpleFine() {
-        ipc_impl_.ipcHostInit(mpi_.my_pe(), mpi_.get_heap_bases() , MPI_COMM_WORLD);
+        ipc_impl_.ipcHostInit(mpi_.my_pe(), mpi_.get_heap_bases());
 
         assert(ipc_impl_dptr_ == nullptr);
         hip_allocator_.allocate((void**)&ipc_impl_dptr_, sizeof(IpcImpl));

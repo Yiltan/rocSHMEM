@@ -49,11 +49,20 @@ class MPIInitSingleton {
   int get_world_rank();
   int get_world_size();
 
+  int get_local_rank();
+  int get_local_size();
+
+  MPI_Comm get_local_comm();
+
  private:
   int initialized = 0;
 
   int world_rank = -1;
   int world_size = -1;
+
+  MPI_Comm local_comm;
+  int local_rank = -1;
+  int local_size = -1;
 
   static MPIInitSingleton* instance;
 };

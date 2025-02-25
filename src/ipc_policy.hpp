@@ -48,8 +48,7 @@ class IpcOnImpl {
 
   char **ipc_bases{nullptr};
 
-  __host__ void ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases,
-                            MPI_Comm thread_comm);
+  __host__ void ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases);
 
   __host__ void ipcHostStop();
 
@@ -116,8 +115,7 @@ class IpcOffImpl {
 
   char **ipc_bases{nullptr};
 
-  __host__ void ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases,
-                            MPI_Comm thread_comm) {}
+  __host__ void ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases) {}
 
   __host__ void ipcHostStop() {}
 

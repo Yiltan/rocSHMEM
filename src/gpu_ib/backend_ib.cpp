@@ -256,7 +256,7 @@ void GPUIBBackend::dump_backend_stats() {
 void GPUIBBackend::reset_backend_stats() { networkImpl.reset_backend_stats(); }
 
 void GPUIBBackend::initialize_ipc() {
-  ipcImpl.ipcHostInit(my_pe, heap.get_heap_bases(), thread_comm);
+  ipcImpl.ipcHostInit(my_pe, heap.get_heap_bases());
 }
 
 void GPUIBBackend::initialize_network() { networkImpl.networkHostSetup(this); }

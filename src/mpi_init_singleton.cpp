@@ -50,6 +50,11 @@ MPIInitSingleton::MPIInitSingleton() {
 
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+  // Create Local Node information
+  MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &local_comm);
+  MPI_Comm_size(MPI_COMM_WORLD, &local_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &local_rank);
 }
 
 MPIInitSingleton::~MPIInitSingleton() {
@@ -68,5 +73,11 @@ MPIInitSingleton* MPIInitSingleton::GetInstance() {
 int MPIInitSingleton::get_world_rank() { return world_rank; }
 
 int MPIInitSingleton::get_world_size() { return world_size; }
+
+int MPIInitSingleton::get_local_rank() { return local_rank; }
+
+int MPIInitSingleton::get_local_size() { return local_size; }
+
+MPI_Comm MPIInitSingleton::get_local_comm() { return local_comm; }
 
 }  // namespace rocshmem

@@ -296,8 +296,7 @@ void ROBackend::ro_net_poll() {
 void ROBackend::initIPC() {
   const auto &heap_bases{heap.get_heap_bases()};
 
-  ipcImpl.ipcHostInit(transport_->getMyPe(), heap_bases,
-                      transport_->get_world_comm());
+  ipcImpl.ipcHostInit(transport_->getMyPe(), heap_bases);
 }
 
 void ROBackend::global_exit(int status) { transport_->global_exit(status); }
