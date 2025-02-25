@@ -83,7 +83,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
 
 if (BUILD_TESTS_ONLY)
   if (DEFINED ENV{ROCSHMEM_HOME})
-    set(ROCSHMEM_HOME "$ENV{ROCSHMEM_HOME}" CACHE PATH "rocSHMEM install directory")
+    set(ROCSHMEM_HOME "$ENV{ROCSHMEM_HOME}")
   else()
     message("Environment variable ROCSHMEM_HOME is not set.")
     message("Assuming that rocSHMEM is installed at ${ROCM_PATH}.")

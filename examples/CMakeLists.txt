@@ -36,8 +36,6 @@ foreach(SOURCE_FILE IN LISTS EXAMPLE_SOURCES)
 
   add_executable(${EXECUTABLE_NAME} ${SOURCE_FILE})
 
-  message("ROCSHMEM_HOME=${ROCSHMEM_HOME}")
-
   if (BUILD_TESTS_ONLY)
     find_package(MPI REQUIRED)
 
