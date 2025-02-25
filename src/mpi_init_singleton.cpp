@@ -27,21 +27,22 @@ namespace rocshmem {
 MPIInitSingleton* MPIInitSingleton::instance{nullptr};
 
 MPIInitSingleton::MPIInitSingleton() {
-  MPI_Initialized(&pre_init_done);
+  MPI_Initialized(&initialized);
 
-  if (!pre_init_done) {
+  if (0 == initialized) {
     int provided;
     MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
   }
 
-  MPI_Comm_size(MPI_COMM_WORLD, &nprocs_);
-  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 }
 
 MPIInitSingleton::~MPIInitSingleton() {
-  int finalized{0};
+  int finalized = 0;
+
   MPI_Finalized(&finalized);
-  if (!finalized && !pre_init_done) {
+  if (!finalized && !initialized) {
     MPI_Finalize();
   }
 }
@@ -54,8 +55,8 @@ MPIInitSingleton* MPIInitSingleton::GetInstance() {
   return instance;
 }
 
-int MPIInitSingleton::get_rank() { return my_rank_; }
+int MPIInitSingleton::get_world_rank() { return world_rank; }
 
-int MPIInitSingleton::get_nprocs() { return nprocs_; }
+int MPIInitSingleton::get_world_size() { return world_size; }
 
 }  // namespace rocshmem

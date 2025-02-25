@@ -37,57 +37,22 @@ namespace rocshmem {
 
 class MPIInitSingleton {
  private:
-  /**
-   * @brief Primary constructor
-   */
   MPIInitSingleton();
 
  public:
-  /**
-   * @brief Destructor
-   */
   ~MPIInitSingleton();
 
-  /**
-   * @brief Invoke singleton construction or return handle
-   *
-   * @return Initialized handle to singleton
-   */
   static MPIInitSingleton* GetInstance();
 
-  /**
-   * @brief Accessor for my COMM_WORLD rank identifier
-   *
-   * @return My COMM_WORLD rank identifier
-   */
-  int get_rank();
-
-  /**
-   * @brief Accessor for number or processes in COMM_WORLD
-   *
-   * @return Number of processes in COMM_WORLD
-   */
-  int get_nprocs();
+  int get_world_rank();
+  int get_world_size();
 
  private:
-  /**
-   * @brief My MPI rank identifier
-   */
-  int my_rank_{-1};
+  int initialized = 0;
 
-  /**
-   * @brief Number of MPI processes
-   */
-  int nprocs_{-1};
+  int world_rank = -1;
+  int world_size = -1;
 
-  /**
-   * @brief Was MPI initialized before rocshmem_init call
-   */
-  int pre_init_done{0};
-
-  /**
-   * @brief Refers to global variable
-   */
   static MPIInitSingleton* instance;
 };
 

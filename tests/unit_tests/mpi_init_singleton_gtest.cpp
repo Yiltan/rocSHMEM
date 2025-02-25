@@ -27,9 +27,9 @@ using namespace rocshmem;
 TEST_F(MPIInitSingletonTestFixture, library_initialize_destroy) {}
 
 TEST_F(MPIInitSingletonTestFixture, rank) {
-  ASSERT_NO_FATAL_FAILURE(s_ptr_->get_rank());
+  ASSERT_NO_FATAL_FAILURE(s_ptr_->get_world_rank());
 }
 
 TEST_F(MPIInitSingletonTestFixture, nprocs) {
-  ASSERT_EQ(s_ptr_->get_nprocs(), 4);
+  ASSERT_EQ(s_ptr_->get_world_size(), 4);
 }
