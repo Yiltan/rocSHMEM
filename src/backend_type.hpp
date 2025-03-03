@@ -44,7 +44,7 @@ namespace rocshmem {
  * @note Derived classes which use Backend as a base class must add
  * themselves to this enum class to support static polymorphism.
  */
-enum class BackendType {
+enum BackendType {
   IPC_BACKEND = 0,
   RO_BACKEND,
 #ifdef USE_GPU_IB
@@ -53,6 +53,32 @@ enum class BackendType {
   NUM_BACKENDS, /* Keep track of the number of backend */
   NULL_BACKEND
 };
+
+/**
+ * @brief Enumerates atomicity domains.
+ */
+enum atomic_domain {
+  ATOMIC_DOMAIN_LOCAL = 0,
+  ATOMIC_DOMAIN_GLOBAL,
+  // Stores the number of atomic domains
+  ATOMIC_DOMAIN_COUNT,
+};
+
+/**
+ * @brief Define for GPU operations
+ */
+struct gpu_config_t {
+  int atomic_domain;
+  int backend[1];
+};
+typedef struct gpu_config_t gpu_config_t;
+
+/**
+ * @brief Configuration for GPU operations _d suffix denotes device memory
+ *        and _h denote host memory.
+ */
+static gpu_config_t *gpu_config_d = NULL;
+static gpu_config_t *gpu_config_h = NULL;
 
 /**
  * @brief Helper macro for some dispatch calls

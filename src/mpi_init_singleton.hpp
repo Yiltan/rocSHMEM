@@ -54,6 +54,9 @@ class MPIInitSingleton {
 
   MPI_Comm get_local_comm();
 
+  bool is_single_node_job();
+  bool is_local_peer(int rank);
+
  private:
   int initialized = 0;
 
@@ -63,6 +66,7 @@ class MPIInitSingleton {
   MPI_Comm local_comm;
   int local_rank = -1;
   int local_size = -1;
+  int *local_to_world_rank_map;
 
   static MPIInitSingleton* instance;
 };

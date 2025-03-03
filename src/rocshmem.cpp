@@ -82,7 +82,35 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
 
   rocm_init();
 
-  MPIInitSingleton::init();
+  // Init Backends
+  MPIInitSingleton *mpi_init_singleton = mpi_init_singleton->GetInstance();
+  int world_size = mpi_init_singleton->get_world_size();
+
+  size_t config_size = sizeof(gpu_config_t)
+                     + (sizeof(enum BackendType) * world_size - 1);
+
+  gpu_config_h = (gpu_config_t*) malloc(config_size);
+  if (NULL == gpu_config_h) {
+    fprintf(stderr, "Couldn't allocate\n");
+    fflush(stderr);
+  }
+  CHECK_HIP(hipMalloc(&gpu_config_d, config_size));
+
+  if (mpi_init_singleton->is_single_node_job()) {
+    gpu_config_h->atomic_domain = ATOMIC_DOMAIN_LOCAL;
+    memset(&gpu_config_h->backend, BackendType::IPC_BACKEND, world_size);
+  } else {
+    gpu_config_h->atomic_domain = ATOMIC_DOMAIN_GLOBAL;
+    memset(&gpu_config_h->backend, BackendType::RO_BACKEND, world_size);
+
+    for (int i=0; i<world_size; i++) {
+      if (mpi_init_singleton->is_local_peer(i)) {
+        gpu_config_h->backend[i] = BackendType::IPC_BACKEND;
+      }
+    }
+  }
+
+  CHECK_HIP(hipMemcpy(gpu_config_d, gpu_config_h, config_size, hipMemcpyHostToDevice));
 
 #ifdef USE_GPU_IB
   CHECK_HIP(hipHostMalloc(&backend, sizeof(GPUIBBackend)));
@@ -167,6 +195,9 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
   auto team_destroy{
       std::bind(&Backend::team_destroy, backend, std::placeholders::_1)};
   backend->team_tracker.destroy_all(team_destroy);
+
+  free(gpu_config_h);
+  CHECK_HIP(hipFree(gpu_config_d));
 
   backend->~Backend();
   CHECK_HIP(hipHostFree(backend));
