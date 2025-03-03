@@ -44,7 +44,15 @@ namespace rocshmem {
  * @note Derived classes which use Backend as a base class must add
  * themselves to this enum class to support static polymorphism.
  */
-enum class BackendType { RO_BACKEND, GPU_IB_BACKEND, IPC_BACKEND };
+enum class BackendType {
+  IPC_BACKEND = 0,
+  RO_BACKEND,
+#ifdef USE_GPU_IB
+  GPU_IB_BACKEND,
+#endif
+  NUM_BACKENDS, /* Keep track of the number of backend */
+  NULL_BACKEND
+};
 
 /**
  * @brief Helper macro for some dispatch calls

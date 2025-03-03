@@ -154,7 +154,7 @@ class Team {
    *
    * @note This is required to do some reinterpret_casts.
    */
-  BackendType type{BackendType::GPU_IB_BACKEND};
+  BackendType type{BackendType::NULL_BACKEND};
 };
 
 __host__ __device__ Team* get_internal_team(rocshmem_team_t team);
