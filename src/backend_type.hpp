@@ -77,7 +77,7 @@ typedef struct gpu_config_t gpu_config_t;
  * @brief Configuration for GPU operations _d suffix denotes device memory
  *        and _h denote host memory.
  */
-static gpu_config_t *gpu_config_d = NULL;
+static __device__ gpu_config_t *gpu_config_d = NULL;
 static gpu_config_t *gpu_config_h = NULL;
 
 /**

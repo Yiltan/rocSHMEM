@@ -64,7 +64,7 @@ Backend::Backend(BackendType backend_type) {
   int* device_backend_proxy_addr{nullptr};
   CHECK_HIP(
       hipGetSymbolAddress(reinterpret_cast<void**>(&device_backend_proxy_addr),
-                          HIP_SYMBOL(device_backend_proxy)));
+                          HIP_SYMBOL(device_backend_proxy[type])));
 
   Backend* this_temp_addr{this};
   CHECK_HIP(hipMemcpy(device_backend_proxy_addr, &this_temp_addr, sizeof(this),

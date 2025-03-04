@@ -68,7 +68,7 @@ __device__ void Context::ctx_create() {
 __device__ void Context::ctx_destroy() {
   if (is_thread_zero_in_block()) {
     ctxStats.incStat(NUM_FINALIZE);
-    device_backend_proxy->globalStats.accumulateStats(ctxStats);
+    device_backend_proxy[gpu_config_d->atomic_domain]->globalStats.accumulateStats(ctxStats);
   }
 
   DISPATCH(ctx_destroy());

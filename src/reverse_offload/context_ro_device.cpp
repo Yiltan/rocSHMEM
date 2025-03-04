@@ -189,7 +189,7 @@ __device__ void ROContext::sync(rocshmem_team_t team) {
 
 __device__ void ROContext::ctx_destroy() {
   if (is_thread_zero_in_block()) {
-    ROBackend *backend{static_cast<ROBackend *>(device_backend_proxy)};
+    ROBackend *backend{static_cast<ROBackend *>(device_backend_proxy[RO_BACKEND])};
     BackendProxyT &backend_proxy{backend->backend_proxy};
     auto *proxy{backend_proxy.get()};
 

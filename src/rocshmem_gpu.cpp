@@ -51,11 +51,9 @@
 
 #ifdef USE_GPU_IB
 #include "gpu_ib/context_ib_tmpl_device.hpp"
-#elif defined(USE_RO)
-#include "reverse_offload/context_ro_tmpl_device.hpp"
-#else
-#include "ipc/context_ipc_tmpl_device.hpp"
 #endif
+#include "reverse_offload/context_ro_tmpl_device.hpp"
+#include "ipc/context_ipc_tmpl_device.hpp"
 
 /******************************************************************************
  **************************** Device Vars And Init ****************************
@@ -65,7 +63,7 @@ namespace rocshmem {
 
 __device__ __constant__ rocshmem_ctx_t ROCSHMEM_CTX_DEFAULT{};
 
-__constant__ Backend *device_backend_proxy;
+__constant__ Backend *device_backend_proxy[NUM_BACKENDS];
 
 __device__ void rocshmem_wg_init() {
   int provided;
@@ -288,7 +286,7 @@ __device__ int rocshmem_wg_ctx_create(long option, rocshmem_ctx_t *ctx) {
   bool result{true};
   if (get_flat_block_id() == 0) {
     ctx->team_opaque = reinterpret_cast<TeamInfo *>(ROCSHMEM_CTX_DEFAULT.team_opaque);
-    result = device_backend_proxy->create_ctx(option, ctx);
+    result = device_backend_proxy[gpu_config_d->atomic_domain]->create_ctx(option, ctx);
     reinterpret_cast<Context *>(ctx->ctx_opaque)->setFence(option);
   }
   __syncthreads();
@@ -307,7 +305,7 @@ __device__ int rocshmem_wg_team_create_ctx(rocshmem_team_t team, long options,
     Team *team_obj{get_internal_team(team)};
     TeamInfo *info_wrt_world = team_obj->tinfo_wrt_world;
     ctx->team_opaque = info_wrt_world;
-    result = device_backend_proxy->create_ctx(options, ctx);
+    result = device_backend_proxy[gpu_config_d->atomic_domain]->create_ctx(options, ctx);
     reinterpret_cast<Context *>(ctx->ctx_opaque)->setFence(options);
   }
   __syncthreads();
@@ -320,7 +318,7 @@ __device__ void rocshmem_wg_ctx_destroy(
   GPU_DPRINTF("Function: rocshmem_ctx_destroy\n");
 
   if (get_flat_block_id() == 0) {
-    device_backend_proxy->destroy_ctx(ctx);
+    device_backend_proxy[gpu_config_d->atomic_domain]->destroy_ctx(ctx);
   }
 }
 

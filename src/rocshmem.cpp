@@ -53,14 +53,15 @@ namespace rocshmem {
 
 #define VERIFY_BACKEND()                                                      \
   {                                                                           \
-    if (!backend) {                                                           \
+    if (0 == backend_initialized) {                                           \
       fprintf(stderr, "ROCSHMEM_ERROR: %s in file '%s' in line %d\n",         \
               "Call 'rocshmem_init'", __FILE__, __LINE__);                    \
       abort();                                                                \
     }                                                                         \
   }
 
-Backend *backend = nullptr;
+static int backend_initialized = 0;
+Backend *backend[NUM_BACKENDS];
 
 rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
 
@@ -69,7 +70,6 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
  **/
 
 [[maybe_unused]] __host__ void inline library_init(MPI_Comm comm) {
-  assert(!backend);
   int count = 0;
   if (hipGetDeviceCount(&count) != hipSuccess) {
     abort();
@@ -115,17 +115,24 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
 #ifdef USE_GPU_IB
   CHECK_HIP(hipHostMalloc(&backend, sizeof(GPUIBBackend)));
   backend = new (backend) GPUIBBackend(comm);
-#elif defined(USE_RO)
-  CHECK_HIP(hipHostMalloc(&backend, sizeof(ROBackend)));
-  backend = new (backend) ROBackend(comm);
-#else
-  CHECK_HIP(hipHostMalloc(&backend, sizeof(IPCBackend)));
-  backend = new (backend) IPCBackend(comm);
 #endif
 
-  if (!backend) {
+  if (mpi_init_singleton->is_single_node_job()) {
+    CHECK_HIP(hipHostMalloc(&backend[IPC_BACKEND], sizeof(IPCBackend)));
+    backend[IPC_BACKEND] = new (backend[IPC_BACKEND]) IPCBackend(comm);
+    backend[RO_BACKEND] = nullptr ;
+  } else {
+    CHECK_HIP(hipHostMalloc(&backend[RO_BACKEND], sizeof(ROBackend)));
+    backend[RO_BACKEND] = new (backend[RO_BACKEND]) ROBackend(comm);
+    backend[IPC_BACKEND] = nullptr ;
+  }
+
+  if ((nullptr == backend[IPC_BACKEND]) &&
+      (nullptr == backend[RO_BACKEND])){
     abort();
   }
+
+  backend_initialized = 1;
 }
 
 [[maybe_unused]] __host__ void rocshmem_init(MPI_Comm comm) {
@@ -153,7 +160,7 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
   VERIFY_BACKEND();
 
   void *ptr;
-  backend->heap.malloc(&ptr, size);
+  backend[gpu_config_h->atomic_domain]->heap.malloc(&ptr, size);
 
   rocshmem_barrier_all();
 
@@ -165,42 +172,47 @@ rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
 
   rocshmem_barrier_all();
 
-  backend->heap.free(ptr);
+  backend[gpu_config_h->atomic_domain]->heap.free(ptr);
 }
 
 [[maybe_unused]] __host__ void rocshmem_reset_stats() {
   VERIFY_BACKEND();
-  backend->reset_stats();
+  backend[gpu_config_h->atomic_domain]->reset_stats();
 }
 
 [[maybe_unused]] __host__ void rocshmem_dump_stats() {
   /** TODO: Many stats are backend independent! **/
   VERIFY_BACKEND();
-  backend->dump_stats();
+  backend[gpu_config_h->atomic_domain]->dump_stats();
 }
 
 [[maybe_unused]] __host__ void rocshmem_finalize() {
   VERIFY_BACKEND();
 
-  /*
-   * Destroy all the ctxs that the user
-   * created but did not manually destroy
-   */
-  backend->destroy_remaining_ctxs();
+  for (int i=0; i<NUM_BACKENDS; i++) {
+    if (nullptr == backend[i]) {
+      continue;
+    }
 
-  /*
-   * Destroy all the teams that the user
-   * created but did not manually destroy
-   */
-  auto team_destroy{
-      std::bind(&Backend::team_destroy, backend, std::placeholders::_1)};
-  backend->team_tracker.destroy_all(team_destroy);
+    /*
+     * Destroy all the ctxs that the user
+     * created but did not manually destroy
+     */
+    backend[i]->destroy_remaining_ctxs();
+
+    /*
+     * Destroy all the teams that the user
+     * created but did not manually destroy
+     */
+    auto team_destroy{std::bind(&Backend::team_destroy, backend[i], std::placeholders::_1)};
+    backend[i]->team_tracker.destroy_all(team_destroy);
+
+    backend[i]->~Backend();
+    CHECK_HIP(hipHostFree(backend[i]));
+  }
 
   free(gpu_config_h);
   CHECK_HIP(hipFree(gpu_config_d));
-
-  backend->~Backend();
-  CHECK_HIP(hipHostFree(backend));
 
   delete MPIInitSingleton::GetInstance();
 }
@@ -215,7 +227,7 @@ __host__ void rocshmem_query_thread(int *provided) {
 
 __host__ void rocshmem_global_exit(int status) {
   VERIFY_BACKEND();
-  backend->global_exit(status);
+  backend[gpu_config_h->atomic_domain]->global_exit(status);
 }
 
 /******************************************************************************
@@ -257,9 +269,10 @@ __host__ int rocshmem_team_split_strided(
   VERIFY_BACKEND();
 
   *new_team = ROCSHMEM_TEAM_INVALID;
+  int atomic_domain = gpu_config_h->atomic_domain;
 
-  auto num_user_teams{backend->team_tracker.get_num_user_teams()};
-  auto max_num_teams{backend->team_tracker.get_max_num_teams()};
+  auto num_user_teams{backend[atomic_domain]->team_tracker.get_num_user_teams()};
+  auto max_num_teams{backend[atomic_domain]->team_tracker.get_max_num_teams()};
   if (num_user_teams >= max_num_teams - 1) {
     /* Exceeded maximum number of teams */
     return -1;
@@ -283,12 +296,12 @@ __host__ int rocshmem_team_split_strided(
   int pe_end_in_world = pe_start_in_world + stride_in_world * (size - 1);
 
   /* Check if size is out of bounds */
-  if (pe_end_in_world > backend->num_pes) {
+  if (pe_end_in_world > backend[atomic_domain]->num_pes) {
     return -1;
   }
 
   /* Calculate my PE in the new team */
-  int my_pe_in_world = backend->my_pe;
+  int my_pe_in_world = backend[atomic_domain]->my_pe;
   int my_pe_in_new_team = pe_in_active_set(pe_start_in_world, stride_in_world,
                                            size, my_pe_in_world);
 
@@ -298,7 +311,7 @@ __host__ int rocshmem_team_split_strided(
   CHECK_HIP(hipMalloc(&team_info_wrt_parent, sizeof(TeamInfo)));
   new (team_info_wrt_parent) TeamInfo(parent_team_obj, start, stride, size);
 
-  auto *team_world{backend->team_tracker.get_team_world()};
+  auto *team_world{backend[atomic_domain]->team_tracker.get_team_world()};
   CHECK_HIP(hipMalloc(&team_info_wrt_world, sizeof(TeamInfo)));
   new (team_info_wrt_world)
       TeamInfo(team_world, pe_start_in_world, stride_in_world, size);
@@ -322,13 +335,13 @@ __host__ int rocshmem_team_split_strided(
   if (my_pe_in_new_team < 0) {
     *new_team = ROCSHMEM_TEAM_INVALID;
   } else {
-    backend->create_new_team(parent_team_obj, team_info_wrt_parent,
+    backend[atomic_domain]->create_new_team(parent_team_obj, team_info_wrt_parent,
                              team_info_wrt_world, size, my_pe_in_new_team,
                              team_comm, new_team);
 
     /* Track the newly created team to destroy it in finalize if the user does
      * not */
-    backend->team_tracker.track(*new_team);
+    backend[atomic_domain]->team_tracker.track(*new_team);
   }
 
   return 0;
@@ -340,9 +353,10 @@ __host__ void rocshmem_team_destroy(rocshmem_team_t team) {
     return;
   }
 
-  backend->team_tracker.untrack(team);
+  int atomic_domain = gpu_config_h->atomic_domain;
 
-  backend->team_destroy(team);
+  backend[atomic_domain]->team_tracker.untrack(team);
+  backend[atomic_domain]->team_destroy(team);
 }
 
 __host__ int rocshmem_team_translate_pe(rocshmem_team_t src_team, int src_pe,
@@ -501,14 +515,15 @@ __host__ int rocshmem_ctx_create(int64_t options, rocshmem_ctx_t *ctx) {
   DPRINTF("Host function: rocshmem_ctx_create\n");
 
   void *phys_ctx;
-  backend->ctx_create(options, &phys_ctx);
+  int atomic_domain = gpu_config_h->atomic_domain;
+  backend[atomic_domain]->ctx_create(options, &phys_ctx);
 
   ctx->ctx_opaque = phys_ctx;
   /* This team in on TEAM_WORLD, no need for team info */
   ctx->team_opaque = nullptr;
 
   /* Track this context, if needed. */
-  backend->track_ctx(reinterpret_cast<Context *>(phys_ctx));
+  backend[atomic_domain]->track_ctx(reinterpret_cast<Context *>(phys_ctx));
 
   return 0;
 }
@@ -520,9 +535,10 @@ __host__ void rocshmem_ctx_destroy(rocshmem_ctx_t ctx) {
 
   Context *phys_ctx = get_internal_ctx(ctx);
 
-  backend->untrack_ctx(phys_ctx);
+  int atomic_domain = gpu_config_h->atomic_domain;
+  backend[atomic_domain]->untrack_ctx(phys_ctx);
 
-  backend->ctx_destroy(phys_ctx);
+  backend[atomic_domain]->ctx_destroy(phys_ctx);
 }
 
 template <typename T>

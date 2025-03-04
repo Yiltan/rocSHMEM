@@ -296,7 +296,7 @@ class Backend {
 /**
  * @brief Global handle used by the device to access the backend.
  */
-extern __constant__ Backend* device_backend_proxy;
+extern __constant__ Backend* device_backend_proxy[NUM_BACKENDS];
 
 }  // namespace rocshmem
 
