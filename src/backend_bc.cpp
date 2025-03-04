@@ -205,20 +205,30 @@ void Backend::reset_stats() {
 __device__ bool Backend::create_ctx(int64_t option, rocshmem_ctx_t* ctx) {
 #ifdef USE_GPU_IB
   return static_cast<GPUIBBackend*>(this)->create_ctx(option, ctx);
-#elif defined(USE_RO)
-  return static_cast<ROBackend*>(this)->create_ctx(option, ctx);
 #else
-  return static_cast<IPCBackend*>(this)->create_ctx(option, ctx);
+  switch(gpu_config_d->atomic_domain) {
+    case ATOMIC_DOMAIN_LOCAL:
+      return static_cast<IPCBackend*>(this)->create_ctx(option, ctx);
+    case ATOMIC_DOMAIN_GLOBAL:
+    default:
+      return static_cast<ROBackend*>(this)->create_ctx(option, ctx);
+  }
 #endif
 }
 
 __device__ void Backend::destroy_ctx(rocshmem_ctx_t* ctx) {
 #ifdef USE_GPU_IB
   static_cast<GPUIBBackend*>(this)->destroy_ctx(ctx);
-#elif defined(USE_RO)
-  static_cast<ROBackend*>(this)->destroy_ctx(ctx);
 #else
-  static_cast<IPCBackend*>(this)->destroy_ctx(ctx);
+  switch(gpu_config_d->atomic_domain) {
+    case ATOMIC_DOMAIN_LOCAL:
+      static_cast<IPCBackend*>(this)->destroy_ctx(ctx);
+      break;
+    case ATOMIC_DOMAIN_GLOBAL:
+    default:
+      static_cast<ROBackend*>(this)->destroy_ctx(ctx);
+      break;
+  }
 #endif
 }
 

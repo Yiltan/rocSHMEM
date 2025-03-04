@@ -91,30 +91,39 @@ static gpu_config_t *gpu_config_h = NULL;
 #ifdef USE_GPU_IB
 #define DISPATCH(Func)                     \
   static_cast<GPUIBContext *>(this)->Func;
-#elif defined(USE_RO)
-#define DISPATCH(Func)                     \
-  static_cast<ROContext *>(this)->Func;
 #else
-#define DISPATCH(Func)                     \
-  static_cast<IPCContext *>(this)->Func;
+#define DISPATCH(Func)                       \
+  switch(gpu_config_d->atomic_domain) {      \
+    case ATOMIC_DOMAIN_LOCAL:                \
+      static_cast<IPCContext *>(this)->Func; \
+      break;                                 \
+    case ATOMIC_DOMAIN_GLOBAL:               \
+      static_cast<ROContext *>(this)->Func;  \
+      break;                                 \
+  }
 #endif
 
 /**
  * @brief Device static dispatch method call with a return value.
  */
 #ifdef USE_GPU_IB
-#define DISPATCH_RET(Func)                           \
+#define DISPATCH_RET(Func)                                \
   auto ret_val = static_cast<GPUIBContext *>(this)->Func; \
   return ret_val;
-#elif defined(USE_RO)
-#define DISPATCH_RET(Func)                        \
-  auto ret_val = static_cast<ROContext *>(this)->Func; \
-  return ret_val;
 #else
-#define DISPATCH_RET(Func)                        \
-  auto ret_val{0};                                \
-  ret_val = static_cast<IPCContext *>(this)->Func; \
-  return ret_val;
+#define DISPATCH_RET(Func)                                   \
+  switch(gpu_config_d->atomic_domain) {                      \
+    case ATOMIC_DOMAIN_LOCAL: {                              \
+      auto _ret_val{0};                                      \
+      _ret_val = static_cast<IPCContext *>(this)->Func;      \
+      return _ret_val;                                       \
+                              } \
+    case ATOMIC_DOMAIN_GLOBAL:                               \
+    default: {                         \
+      auto _ret_val = static_cast<ROContext *>(this)->Func;  \
+      return _ret_val;                                       \
+                                }\
+  }
 #endif
 /**
  * @brief Device static dispatch method call with a return type of pointer.
@@ -124,16 +133,21 @@ static gpu_config_t *gpu_config_h = NULL;
   void *ret_val{nullptr};                            \
   ret_val = static_cast<GPUIBContext *>(this)->Func; \
   return ret_val;
-#elif defined(USE_RO)
-#define DISPATCH_RET_PTR(Func)                    \
-  void *ret_val{nullptr};                         \
-  ret_val = static_cast<ROContext *>(this)->Func; \
-  return ret_val;
 #else
-#define DISPATCH_RET_PTR(Func)                    \
-  void *ret_val{nullptr};                         \
-  ret_val = static_cast<IPCContext *>(this)->Func; \
-  return ret_val;
+#define DISPATCH_RET_PTR(Func)                          \
+  switch(gpu_config_d->atomic_domain) {                 \
+    case ATOMIC_DOMAIN_LOCAL: {                           \
+  void *_ret_val{nullptr};                              \
+      _ret_val = static_cast<IPCContext *>(this)->Func; \
+      return _ret_val;                                  \
+                              }\
+    case ATOMIC_DOMAIN_GLOBAL:                          \
+    default: {                         \
+  void *_ret_val{nullptr};                              \
+      _ret_val = static_cast<ROContext *>(this)->Func;  \
+      return _ret_val;                                  \
+                               }\
+  }
 #endif
 
 /**
