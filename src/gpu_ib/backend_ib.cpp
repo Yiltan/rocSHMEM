@@ -67,7 +67,8 @@ int get_ls_non_zero_bit(char *bitmask, int mask_length) {
   return position;
 }
 
-GPUIBBackend::GPUIBBackend(MPI_Comm comm) : Backend() {
+GPUIBBackend::GPUIBBackend(MPI_Comm comm)
+    : Backend(BackendType::GPU_IB_BACKEND) {
   if (auto maximum_num_contexts_str = getenv("ROCSHMEM_MAX_NUM_CONTEXTS")) {
     std::stringstream sstream(maximum_num_contexts_str);
     sstream >> maximum_num_contexts_;
@@ -75,8 +76,6 @@ GPUIBBackend::GPUIBBackend(MPI_Comm comm) : Backend() {
   num_blocks_ = maximum_num_contexts_;
 
   init_mpi_once(comm);
-
-  type = BackendType::GPU_IB_BACKEND;
 
   NET_CHECK(MPI_Comm_dup(backend_comm, &gpu_ib_comm_world));
   NET_CHECK(MPI_Comm_size(gpu_ib_comm_world, &num_pes));

@@ -54,8 +54,7 @@ int get_ls_non_zero_bit(char *bitmask, int mask_length) {
 }
 
 IPCBackend::IPCBackend(MPI_Comm comm)
-    :  Backend() {
-  type = BackendType::IPC_BACKEND;
+    : Backend(BackendType::IPC_BACKEND) {
 
   if (auto maximum_num_contexts_str = getenv("ROCSHMEM_MAX_NUM_CONTEXTS")) {
     std::stringstream sstream(maximum_num_contexts_str);

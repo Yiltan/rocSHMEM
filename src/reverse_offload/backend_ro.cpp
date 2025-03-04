@@ -45,8 +45,7 @@ namespace rocshmem {
 extern rocshmem_ctx_t ROCSHMEM_HOST_CTX_DEFAULT;
 
 ROBackend::ROBackend(MPI_Comm comm)
-    : Backend() {
-  type = BackendType::RO_BACKEND;
+    : Backend(BackendType::RO_BACKEND) {
 
   if (auto maximum_num_contexts_str = getenv("ROCSHMEM_MAX_NUM_CONTEXTS")) {
     std::stringstream sstream(maximum_num_contexts_str);

@@ -67,7 +67,7 @@ class Backend {
    * @note Implementation may reduce the number of workgroups if the
    * number exceeds hardware limits.
    */
-  explicit Backend();
+  explicit Backend(BackendType backend_type);
 
   /**
    * @brief Destructor.

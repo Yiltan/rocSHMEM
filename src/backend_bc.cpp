@@ -33,7 +33,9 @@
 
 namespace rocshmem {
 
-Backend::Backend() {
+Backend::Backend(BackendType backend_type) {
+  type = backend_type;
+
   int num_cus{};
   if (hipDeviceGetAttribute(&num_cus, hipDeviceAttributeMultiprocessorCount,
                             0)) {
