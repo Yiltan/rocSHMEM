@@ -27,11 +27,9 @@
 
 #ifdef USE_GPU_IB
 #include "gpu_ib/backend_ib.hpp"
-#elif defined(USE_RO)
-#include "reverse_offload/backend_ro.hpp"
-#else
-#include "ipc/backend_ipc.hpp"
 #endif
+#include "reverse_offload/backend_ro.hpp"
+#include "ipc/backend_ipc.hpp"
 
 namespace rocshmem {
 

@@ -39,13 +39,11 @@
 #ifdef USE_GPU_IB
 #include "gpu_ib/backend_ib.hpp"
 #include "gpu_ib/context_ib_tmpl_host.hpp"
-#elif defined(USE_RO)
+#endif
 #include "reverse_offload/backend_ro.hpp"
 #include "reverse_offload/context_ro_tmpl_host.hpp"
-#else
 #include "ipc/backend_ipc.hpp"
 #include "ipc/context_ipc_tmpl_host.hpp"
-#endif
 #include "mpi_init_singleton.hpp"
 #include "team.hpp"
 #include "templates_host.hpp"

@@ -254,10 +254,6 @@ class Backend {
   /**
    * @brief Compile-time configuration policy for intra-node shared memory
    * accesses.
-   *
-   * The configuration option "USE_IPC" can be enabled to allow shared
-   * memory accesses to the symmetric heap from processing elements
-   * co-located on the same node.
    */
   IpcImpl ipcImpl{};
 

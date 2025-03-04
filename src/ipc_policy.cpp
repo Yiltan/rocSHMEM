@@ -31,7 +31,7 @@
 
 namespace rocshmem {
 
-__host__ void IpcOnImpl::ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases) {
+__host__ void IpcImpl::ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases) {
 
   MPIInitSingleton *mpi_init_singleton = mpi_init_singleton->GetInstance();
 
@@ -95,7 +95,7 @@ __host__ void IpcOnImpl::ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases) 
   free(vec_ipc_handle);
 }
 
-__host__ void IpcOnImpl::ipcHostStop() {
+__host__ void IpcImpl::ipcHostStop() {
   for (int i = 0; i < shm_size; i++) {
     if (i != shm_rank) {
       CHECK_HIP(hipIpcCloseMemHandle(ipc_bases[i]));
@@ -104,15 +104,15 @@ __host__ void IpcOnImpl::ipcHostStop() {
   CHECK_HIP(hipFree(ipc_bases));
 }
 
-__device__ void IpcOnImpl::ipcCopy(void *dst, void *src, size_t size) {
+__device__ void IpcImpl::ipcCopy(void *dst, void *src, size_t size) {
   memcpy(dst, src, size);
 }
 
-__device__ void IpcOnImpl::ipcCopy_wave(void *dst, void *src, size_t size) {
+__device__ void IpcImpl::ipcCopy_wave(void *dst, void *src, size_t size) {
   memcpy_wave(dst, src, size);
 }
 
-__device__ void IpcOnImpl::ipcCopy_wg(void *dst, void *src, size_t size) {
+__device__ void IpcImpl::ipcCopy_wg(void *dst, void *src, size_t size) {
   memcpy_wg(dst, src, size);
 }
 

@@ -38,7 +38,7 @@ namespace rocshmem {
 class Backend;
 class Context;
 
-class IpcOnImpl {
+class IpcImpl {
   using HEAP_BASES_T = std::vector<char *, StdAllocatorHIP<char *>>;
 
  public:
@@ -104,66 +104,6 @@ class IpcOnImpl {
         pe_ipc_base, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 };
-
-// clang-format off
-NOWARN(-Wunused-parameter,
-class IpcOffImpl {
-  using HEAP_BASES_T = std::vector<char *, StdAllocatorHIP<char *>>;
-
- public:
-  uint32_t shm_size{0};
-
-  char **ipc_bases{nullptr};
-
-  __host__ void ipcHostInit(int my_pe, const HEAP_BASES_T &heap_bases) {}
-
-  __host__ void ipcHostStop() {}
-
-  __device__ bool isIpcAvailable(int my_pe, int target_pe) { return false; }
-
-  __device__ void ipcGpuInit(Backend *rocshmem_handle, Context *ctx,
-                             int thread_id) {}
-
-  __device__ void ipcCopy(void *dst, void *src, size_t size) {}
-
-  __device__ void ipcCopy_wg(void *dst, void *src, size_t size) {}
-
-  __device__ void ipcCopy_wave(void *dst, void *src, size_t size) {}
-
-  __device__ void ipcFence() {}
-
-  template <typename T>
-  __device__ T ipcAMOFetchAdd(T *val, T value) {
-    return T();
-  }
-
-  template <typename T>
-  __device__ T ipcAMOFetchCas(T *val, T cond, T value) {
-    return T();
-  }
-
-  template <typename T>
-  __device__ void ipcAMOAdd(T *val, T value) {}
-
-  template <typename T>
-  __device__ void ipcAMOSet(T *val, T value) {}
-
-  template <typename T>
-  __device__ void ipcAMOCas(T *val, T cond, T value) {}
-
-  __device__ void zero_byte_read(int pe) {}
-};
-)
-// clang-format on
-
-/*
- * Select which one of our IPC policies to use at compile time.
- */
-#ifdef USE_IPC
-typedef IpcOnImpl IpcImpl;
-#else
-typedef IpcOffImpl IpcImpl;
-#endif
 
 }  // namespace rocshmem
 

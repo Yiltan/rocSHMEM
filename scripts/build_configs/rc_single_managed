@@ -19,7 +19,6 @@ cmake \
     -DPROFILE=OFF \
     -DUSE_GPU_IB=ON \
     -DUSE_DC=OFF \
-    -DUSE_IPC=OFF \
     -DUSE_THREADS=OFF \
     -DUSE_WF_COAL=OFF \
     -DUSE_MANAGED_HEAP=ON \
